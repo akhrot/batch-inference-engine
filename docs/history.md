@@ -29,6 +29,7 @@ Chronological log of the interview session. Times are IST (UTC+5:30). Detailed n
 
 | 14:32–14:37 | The user finished `gh auth login`. Pushed to the public repo [akhrot/batch-inference-engine](https://github.com/akhrot/batch-inference-engine), and **CI passed** on 3.12 and 3.13. Deployed the App Platform app in `akhrot-interview-2` (ACTIVE in about 100 s). Live smoke test with 1,000 rows: 995 ok, 5 invalid isolated, 132 retries, zero drops. | [07](notes/07-deployment.md) |
 | 14:39–14:41 | The user approved a force-push. All commits were re-authored as `Jinish Raiyarela <23030561+akhrot@users.noreply.github.com>` and pushed with `--force-with-lease`. Billing question: the app is billed to DigitalOcean team `Blitz_team2_Hyd` (the token's team), not to the individual; the user has no billing permission there. | [05](notes/05-current-state.md) |
+| 14:41 | Added [post_interview_cleanup.md](post_interview_cleanup.md), an ordered checklist: delete the app and project, remove `doctl` credentials and console keys, log out of `gh`, undo the git credential helper and identity, local secrets, sign out of Cursor and the browser, final checks. | |
 
 _Earlier versions of this file estimated 14:35–14:50 for the coding rows. The real times are above._
 

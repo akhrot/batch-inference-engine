@@ -26,6 +26,8 @@ _Last updated: about 14:38 IST. The deadline is **15:04 IST**._
 
 ## End-of-session cleanup (spec rule)
 
+The full ordered checklist is in [../post_interview_cleanup.md](../post_interview_cleanup.md). In summary:
+
 - Delete the app if it shouldn't keep running: `doctl apps delete 33d7abde-59c4-44d3-92ad-6e401d19a631`. It costs about $10/month for two small instances, billed per second, which is about $0.33/day.
 - **Billing:** the `doctl` token acts for user `jinishraiyarela@gmail.com` inside DigitalOcean team **`Blitz_team2_Hyd`** (UUID `2f45c428-…`). DigitalOcean bills the **team's** payment method, not the individual. `doctl balance get` returns 403, meaning this user has no billing permission in the team. The account `warning` status is only the droplet limit (3/3).
 - Run `doctl auth remove --context interview`, revoke the DigitalOcean token and keys, run `gh auth logout`, and sign out of Cursor and the browser.
