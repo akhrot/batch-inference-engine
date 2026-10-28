@@ -22,12 +22,15 @@ Chronological log of the interview session. Times are IST (UTC+5:30). Detailed n
 | 13:17 | The user asked how input is submitted. The answer: by file path (`POST /job {"input_path"}`), read from `DATA_DIR`. Upload is a possible later addition; prompts inline in the body were rejected because of memory use. | [04](notes/04-design-decisions.md) |
 | 13:58 | The user proposed three separate services (FastAPI, a durable queue, worker pools). Feasibility analysis: there is no Redis or Docker on the machine, and it would add 40–50 minutes. **Decision:** keep three tiers in code (`api.py`, `job_queue.py` with a `JobQueue` interface, `worker.py`) running in one process; the separate-services version is documented as the scale-out path. | [04](notes/04-design-decisions.md) |
 | 14:10 | **Coding approved.** The user asked for in-depth unit tests and separate integration tests per component, with the other components faked. | [06](notes/06-implementation.md) |
-| 14:10–14:35 | Implemented all modules, the fake-provider test kit, 107 unit tests and 28 integration tests (135 total, all passing). | [06](notes/06-implementation.md) |
-| 14:35–14:45 | Added the mock inference server and GitHub Actions CI. Demo against the mock: 1,000 rows, 995 ok, 5 invalid rows isolated, 142 retries, zero drops. | [06](notes/06-implementation.md) |
-| 14:45–14:50 | Wrote README.md, made the first local commit, and updated these docs. Waiting on the user's GitHub login before pushing. | [05](notes/05-current-state.md) |
+| 14:10–14:18 | Implemented all modules, the fake-provider test kit, 107 unit tests and 28 integration tests (135 total, all passing). | [06](notes/06-implementation.md) |
+| 14:18–14:22 | Added the mock inference server and GitHub Actions CI. Demo against the mock: 1,000 rows, 995 ok, 5 invalid rows isolated, 142 retries, zero drops. | [06](notes/06-implementation.md) |
+| 14:22–14:26 | Wrote README.md, made the first local commit, and updated these docs. Waiting on the user's GitHub login before pushing. | [05](notes/05-current-state.md) |
+| 14:28 | The user asked to deploy to the DigitalOcean project `akhrot-interview-2`, keeping inference mocked. `doctl` works (context `interview`). The **droplet limit is 3/3**, all used by other projects, so a VM can't be created. Prepared an App Platform spec (`.do/app.yaml`: public `api` plus internal `mock-llm`), and it passes validation. It needs the repo pushed as **public** first. | [07](notes/07-deployment.md) |
 
-## Status at last update (14:50)
+_Earlier versions of this file estimated 14:35–14:50 for the coding rows. The real times are above._
 
-- **Done:** spec, design, the full implementation (API, bounded pipeline, separate 429/5xx retries, SQLite, webhook extension), 135 tests, CI config, README, docs.
-- **Waiting on the user:** `gh auth login`, the repo name and visibility, and the git identity, so the work can be pushed before 15:04.
+## Status at last update (14:30)
+
+- **Done:** spec, design, the full implementation (API, bounded pipeline, separate 429/5xx retries, SQLite, webhook extension), 135 tests, CI config, README, docs, and a validated App Platform spec.
+- **Waiting on the user:** `gh auth login`, so the repo can be pushed (public) and the app deployed before 15:04.
 - **Not done:** Spaces checkpointing extension, resuming interrupted jobs, a live smoke test against the real endpoint.

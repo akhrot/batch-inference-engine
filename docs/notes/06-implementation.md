@@ -1,4 +1,4 @@
-# 06: Implementation (14:10–14:50)
+# 06: Implementation (14:10–14:26)
 
 Coding was approved at 14:10, with the in-process three-tier layout and file-path input.
 
@@ -41,7 +41,7 @@ Coding was approved at 14:10, with the in-process three-tier layout and file-pat
   - `test_api.py`: (a) the API with a `FakeRunner` in place of the worker tier: 202 returned quickly, default input, overrides reaching `JobConfig`, 409 while running, status shape, report format, path traversal returning 400, a missing file returning 404, invalid bodies returning 422, unknown jobs returning 404, healthz. (b) The full stack with a flaky `FakeProvider` and webhook. (c) Restart marking jobs `interrupted`.
 - One flaky test was found and fixed: the slot-release test relied on a back-off delay, and full jitter could make that delay near zero. It now uses `rng=1.0`.
 
-## Manual demo (14:44)
+## Manual demo (about 14:22)
 
 The mock provider (`scripts/mock_inference.py`: 10% 429s with `Retry-After: 1`, 2% 500s, 50–400 ms latency) and the real uvicorn app processed the 1,000-row sample in about 20 s. Result: `completed_with_errors`, 995 succeeded and 5 failed (exactly the 5 deliberately invalid rows), with 116 rate-limit retries, 26 server-error retries, **zero drops**, and a 232 KB report.
 

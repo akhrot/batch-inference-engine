@@ -1,0 +1,42 @@
+# DigitalOcean App Platform: the API plus an internal-only mock LLM, both built from this repo.
+#
+#   doctl apps create --spec .do/app.yaml --project-id <project-id> --wait
+#
+# The API keeps its queue in memory and its results in SQLite on local disk,
+# so it must run as exactly one instance, and job history is lost on redeploy.
+name: batch-inference-engine
+region: blr
+ingress:
+  rules:
+    - component:
+        name: api
+      match:
+        path:
+          prefix: /
+services:
+  - name: api
+    git:
+      repo_clone_url: https://github.com/OWNER/batch-inference-engine.git
+      branch: main
+    source_dir: project
+    environment_slug: python
+    run_command: uvicorn --app-dir src --factory batch_engine.api:create_app --host 0.0.0.0 --port 8080
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    health_check:
+      http_path: /healthz
+    envs:
+      - key: INFERENCE_BASE_URL
+        value: http://mock-llm:9000/v1
+  - name: mock-llm
+    git:
+      repo_clone_url: https://github.com/OWNER/batch-inference-engine.git
+      branch: main
+    source_dir: project
+    environment_slug: python
+    run_command: uvicorn --app-dir scripts mock_inference:app --host 0.0.0.0 --port 9000
+    internal_ports:
+      - 9000
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb

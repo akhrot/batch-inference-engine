@@ -1,6 +1,6 @@
 # 05: Current State and Next Steps
 
-_Last updated: about 14:50 IST. The deadline is **15:04 IST**._
+_Last updated: about 14:30 IST. The deadline is **15:04 IST**. Deployment is in progress; see [07-deployment.md](07-deployment.md)._
 
 ## Working agreements with the user
 
@@ -16,7 +16,7 @@ _Last updated: about 14:50 IST. The deadline is **15:04 IST**._
 - **Tests:** 135 tests, all passing. CI is configured in `.github/workflows/ci.yml` (Python 3.12 and 3.13), but has **not run yet** because nothing has been pushed.
 - **Docs:** `README.md` (quickstart, API, resilience, 500k scale discussion, layout), `docs/design.md`, `docs/history.md`, and these notes.
 - **Data:** `project/data/sample_batch.json` (1,000 rows, 5 deliberately invalid) is committed.
-- **Git:** committed locally on `main`. **There is no remote.** The user's `gh auth login` and repo-local `git config user.name/email` were **still pending** when last checked (about 14:45). Commits are authored as `candidate <candidate@interview.local>`.
+- **Git:** committed locally on `main`. **There is no remote.** The user's `gh auth login` and repo-local `git config user.name/email` were **still pending** when last checked (about 14:30). Commits are authored as `candidate <candidate@interview.local>`.
 
 ## Next steps
 
