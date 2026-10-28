@@ -25,7 +25,19 @@ flowchart LR
 - **No authentication on the API.** It can only read files inside `DATA_DIR`, and the backend is a mock, so nothing costs money. Before using a real key, put it behind auth.
 - **Validation:** `doctl apps spec validate .do/app.yaml` passes, both schema-only and full.
 
-## Steps once the repo is public on GitHub
+## Result (14:32–14:37)
+
+- **14:33:** the user finished `gh auth login` (account `akhrot`). The agent created the public repo **https://github.com/akhrot/batch-inference-engine** with `gh repo create --public --source . --push`, after setting `repo_clone_url` in the spec.
+- **CI:** the first run passed on Python 3.12 and 3.13 (`gh run watch --exit-status` exited 0). There were only deprecation notices: the Node 20 actions (`checkout@v4`, `setup-python@v5`) and `ubuntu-latest` moving to Ubuntu 26.
+- **App:** `doctl apps create --project-id a7442609-…` created app ID **`33d7abde-59c4-44d3-92ad-6e401d19a631`**. It went from BUILDING to DEPLOYING to ACTIVE in about 100 s. URL: **https://batch-inference-engine-ibptc.ondigitalocean.app**.
+- **Live smoke test:**
+  - `/healthz` returned ok.
+  - `POST /job` returned 202 immediately.
+  - The 1,000 rows took about 30 s and finished `completed_with_errors`: 995 ok and 5 `invalid_input`, with 111 rate-limit retries, 21 server-error retries and zero drops. The report was 232 KB.
+  - `rows_read` reached 550 while `processed` was still 0, then stayed bounded. The maximum lead is (16 queued + 8 in progress) × 25 = 600 rows, which shows the backpressure working.
+  - An unknown job returned 404 and path traversal returned 400.
+
+## Steps used (repeatable)
 
 ```bash
 sed -i "s#github.com/akhrot/#github.com/<gh-user>/#" .do/app.yaml && git commit -am "Point app spec at repo" && git push

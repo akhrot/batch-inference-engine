@@ -67,6 +67,21 @@ jq '.summary, .errors' report.json
 
 A sample run against the mock provider took about 20 seconds: 995 rows succeeded and 5 failed. The 5 failures are the deliberately invalid rows. It recorded 116 rate-limit retries and 26 server-error retries, with **zero prompts dropped**.
 
+## Live deployment (DigitalOcean App Platform)
+
+The service runs at **https://batch-inference-engine-ibptc.ondigitalocean.app** in project `akhrot-interview-2`, region `blr`. Inference is served by the bundled mock, as an internal-only service. The spec is in [.do/app.yaml](.do/app.yaml).
+
+```bash
+U=https://batch-inference-engine-ibptc.ondigitalocean.app
+JOB=$(curl -s -X POST $U/job -H 'Content-Type: application/json' -d '{}' | jq -r .job_id)
+curl -s $U/job/$JOB/status | jq
+curl -s $U/job/$JOB/download | jq .summary
+```
+
+Verified run: 1,000 rows in about 30 s. 995 succeeded, and the 5 failures were exactly the deliberately invalid rows. The service absorbed 111 rate-limit retries and 21 server-error retries from the mock with zero drops. The reader stayed at most about 600 rows ahead of the workers, which is the bounded-queue backpressure working.
+
+Redeploy with `doctl apps create-deployment 33d7abde-59c4-44d3-92ad-6e401d19a631`. The API must run as **one instance** (in-process queue and local SQLite), so job history resets on each deploy.
+
 ## API
 
 | Method and path | Description |
