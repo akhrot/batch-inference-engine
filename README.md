@@ -69,7 +69,9 @@ A sample run against the mock provider took about 20 seconds: 995 rows succeeded
 
 ## Live deployment (DigitalOcean App Platform)
 
-The service runs at **https://batch-inference-engine-ibptc.ondigitalocean.app** in project `akhrot-interview-2`, region `blr`. Inference is served by the bundled mock, as an internal-only service. The spec is in [.do/app.yaml](.do/app.yaml).
+The service runs at **https://batch-inference-engine-ibptc.ondigitalocean.app** in project `akhrot-interview-2`, region `blr`. The spec is in [.do/app.yaml](.do/app.yaml), which deploys with the bundled mock as an internal-only service.
+
+The live app now calls **DigitalOcean serverless inference with `mistral-3-14B`**. It was chosen as the cheapest current-generation model, at about $0.03 per 1,000 prompts; see [docs/notes/07-deployment.md](docs/notes/07-deployment.md). The key is set as an encrypted App Platform secret and is not in the repo. A real 1,000-prompt run took 5 min 23 s: 955 ok, 5 invalid, and 40 `rate_limited`. Those 40 were isolated, not lost, after 3,302 retries: the default `MAX_IN_FLIGHT=32` exceeds the key's rate limit. Lower it to about 8, or raise the 429 retry budget per job.
 
 ```bash
 U=https://batch-inference-engine-ibptc.ondigitalocean.app

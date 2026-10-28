@@ -37,6 +37,38 @@ flowchart LR
   - `rows_read` reached 550 while `processed` was still 0, then stayed bounded. The maximum lead is (16 queued + 8 in progress) × 25 = 600 rows, which shows the backpressure working.
   - An unknown job returned 404 and path traversal returned 400.
 
+## Switch to a real model (15:04–15:22)
+
+- **Dedicated options checked first.** No GPU droplet sizes are enabled for this team, and the droplet limit is 3/3. DigitalOcean's *Dedicated Inference* exists (it can even serve `llama3-8b-instruct`), but it is billed per GPU-hour from $2.59/hour and would need GPU quota. Rejected for a demo.
+- **Serverless model choice:** from DigitalOcean's catalogue and pricing docs (verified 26 Oct 2026), Maverick (`llama-4-maverick`) is the only serverless Llama, at $0.25/$0.87 per 1M tokens. The choice was **Ministral 3 14B Instruct, `mistral-3-14B`**, at $0.20/$0.20: about $0.03 per 1,000-prompt run versus about $0.12 for Maverick. It is a non-reasoning model, so answers fit the 128-token cap.
+- **Key:** the user put `INFERENCE_API_KEY` in `project/.env` (git-ignored, as is `/workspaces/.env`). `GET /v1/models` returned 82 models, including `mistral-3-14B`.
+- **Local smoke test:** 50 of 50 succeeded in 3.3 s, averaging 2.0 s per request, with no 429s.
+- **Live app update (user-approved):** `api` envs set to `INFERENCE_BASE_URL=https://inference.do-ai.run/v1`, `INFERENCE_MODEL=mistral-3-14B`, and `INFERENCE_API_KEY` as an **encrypted SECRET** (passed to `doctl apps update --spec -` through stdin, so it never touched disk or logs; it reads back as `EV[...]`). `mock-llm` is still running but unused. The repo's `.do/app.yaml` still describes the mock setup, and the secret is not committed.
+
+### Live 1,000-prompt run against the real model (job `b0e28593…`)
+
+| Metric | Value |
+|---|---|
+| Duration | 5 min 23 s |
+| Result | `completed_with_errors`: **955 ok, 45 failed** (5 `invalid_input`, **40 `rate_limited`**) |
+| 429 retries | **3,302**, with 0 server errors |
+| Latency including back-off | avg 20.1 s, min 0.8 s, max 98 s |
+| Attempts per successful prompt | avg 4.1, max 9 |
+
+**What it shows**
+
+- The default `MAX_IN_FLIGHT=32` is well above this key's rate limit. The first 200 prompts went through, then 429s dominated.
+- Backpressure held: the reader stopped at 800 rows (200 in progress plus 600 queued).
+- Status counters lag because they update per finished chunk. `processed` sat at 200 for about 80 s while retries were happening.
+- 4% of prompts used up the 8-retry 429 budget. They were recorded as isolated `rate_limited` errors, not silently lost, but the spec asks for "without dropping elements".
+
+**Fixes, in order of effort**
+
+1. Set `MAX_IN_FLIGHT` to about 8 on the app, so it stays under the provider limit (an env change, which redeploys the app).
+2. Give the 429 policy a bigger budget, per job (`{"retry": {"rate_limit": {"max_retries": 20, "max_delay_s": 60}}}`) or as the default.
+3. Adaptive concurrency (AIMD): halve the in-flight limit on 429s and raise it by one while requests succeed. This is a design improvement, not built.
+4. A re-run endpoint for failed rows (resume), not built.
+
 ## Steps used (repeatable)
 
 ```bash
