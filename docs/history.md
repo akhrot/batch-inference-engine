@@ -35,6 +35,7 @@ Chronological log of the interview session. Times are IST (UTC+5:30). Detailed n
 | 15:13–15:16 | The user added the key to `project/.env`. Verified the model list (82 models), ran 50 prompts locally (50/50, 2 s average), and switched the live app to the real endpoint with the key as an encrypted secret (user-approved). | [07](notes/07-deployment.md) |
 | 15:16–15:22 | Live run of 1,000 prompts against the real model (user-approved): 955 ok, 5 invalid, **40 rate-limited after exhausting 8 retries**, 3,302 429 retries, 5 min 23 s. `MAX_IN_FLIGHT=32` is above the key's limit. Proposed fix: `MAX_IN_FLIGHT≈8` and a larger 429 budget. | [07](notes/07-deployment.md) |
 | 15:23–15:31 | Tuned rerun (user-approved): `MAX_IN_FLIGHT=8` on the live app, plus a per-job 429 budget of 20 retries with a 60 s cap. **995 ok, 5 invalid, 0 rate-limited**, 1,754 429 retries (down from 3,302), 6 min 41 s. Prompts needed up to 11 attempts. | [07](notes/07-deployment.md) |
+| 16:08 | **Cleanup (user-requested).** Kept the repo, the local checkout and the DigitalOcean app with its inference configuration. Removed both `.env` files, the `doctl` context, the `gh` login, the gh credential helpers and the repo-local identity. The token revocations that need the consoles are left to the user. | [post_interview_cleanup.md](post_interview_cleanup.md) |
 
 _Earlier versions of this file estimated 14:35–14:50 for the coding rows. The real times are above._
 
