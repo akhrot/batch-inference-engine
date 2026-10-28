@@ -62,6 +62,20 @@ flowchart LR
 - Status counters lag because they update per finished chunk. `processed` sat at 200 for about 80 s while retries were happening.
 - 4% of prompts used up the 8-retry 429 budget. They were recorded as isolated `rate_limited` errors, not silently lost, but the spec asks for "without dropping elements".
 
+### Tuned rerun (15:23–15:31, user-approved)
+
+`MAX_IN_FLIGHT=8` was set on the live app by re-applying the app's own spec, in which the key reads back encrypted, so the key was never handled. The job was submitted with `{"retry": {"rate_limit": {"max_retries": 20, "max_delay_s": 60}}}`.
+
+| Metric | Run 1 (32 in flight, 8 retries) | Run 2 (8 in flight, 20 retries) |
+|---|---|---|
+| Result | 955 ok, 5 invalid, **40 rate_limited** | **995 ok, 5 invalid, 0 rate_limited** |
+| 429 retries | 3,302 | **1,754** |
+| Duration | 5 min 23 s | 6 min 41 s |
+| Attempts per successful prompt | avg 4.1, max 9 | avg 2.8, **max 11** |
+| Latency including back-off | avg 20.1 s, max 98 s | avg 23.9 s, max 235 s |
+
+**Conclusion:** with fewer requests in flight, about half as many calls were wasted on 429s, and the larger 429 budget ensured nothing was dropped. Some prompts needed up to 11 attempts, so the default budget of 8 would still have lost a few. The run took longer overall because the endpoint's limit, not our concurrency, sets the pace; adaptive concurrency would close that gap. The live app now keeps `MAX_IN_FLIGHT=8`. The 20-retry budget was a per-job override, not the default.
+
 **Fixes, in order of effort**
 
 1. Set `MAX_IN_FLIGHT` to about 8 on the app, so it stays under the provider limit (an env change, which redeploys the app).
