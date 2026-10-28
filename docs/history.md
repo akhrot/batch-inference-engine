@@ -28,11 +28,13 @@ Chronological log of the interview session. Times are IST (UTC+5:30). Detailed n
 | 14:28 | The user asked to deploy to the DigitalOcean project `akhrot-interview-2`, keeping inference mocked. `doctl` works (context `interview`). The **droplet limit is 3/3**, all used by other projects, so a VM can't be created. Prepared an App Platform spec (`.do/app.yaml`: public `api` plus internal `mock-llm`), and it passes validation. It needs the repo pushed as **public** first. | [07](notes/07-deployment.md) |
 
 | 14:32–14:37 | The user finished `gh auth login`. Pushed to the public repo [akhrot/batch-inference-engine](https://github.com/akhrot/batch-inference-engine), and **CI passed** on 3.12 and 3.13. Deployed the App Platform app in `akhrot-interview-2` (ACTIVE in about 100 s). Live smoke test with 1,000 rows: 995 ok, 5 invalid isolated, 132 retries, zero drops. | [07](notes/07-deployment.md) |
+| 14:39–14:41 | The user approved a force-push. All commits were re-authored as `Jinish Raiyarela <23030561+akhrot@users.noreply.github.com>` and pushed with `--force-with-lease`. Billing question: the app is billed to DigitalOcean team `Blitz_team2_Hyd` (the token's team), not to the individual; the user has no billing permission there. | [05](notes/05-current-state.md) |
 
 _Earlier versions of this file estimated 14:35–14:50 for the coding rows. The real times are above._
 
 ## Status at last update (14:38)
 
 - **Done:** spec, design, the full implementation (API, bounded pipeline, separate 429/5xx retries, SQLite, webhook extension), 135 tests, a green CI run, README, docs, pushed to GitHub, and **deployed live** at https://batch-inference-engine-ibptc.ondigitalocean.app with the mocked inference backend.
-- **Open:** commits are authored as `candidate <candidate@interview.local>` (the workstation default).
+- **Commit authorship:** fixed (Jinish Raiyarela, GitHub no-reply email).
+- **Open:** delete the app after the review (it's billed to team `Blitz_team2_Hyd`), plus the end-of-session sign-out steps.
 - **Not done:** Spaces checkpointing extension, resuming interrupted jobs, a live smoke test against the real endpoint.
