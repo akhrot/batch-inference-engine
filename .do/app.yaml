@@ -16,7 +16,7 @@ ingress:
 services:
   - name: api
     git:
-      repo_clone_url: https://github.com/OWNER/batch-inference-engine.git
+      repo_clone_url: https://github.com/akhrot/batch-inference-engine.git
       branch: main
     source_dir: project
     environment_slug: python
@@ -31,7 +31,7 @@ services:
         value: http://mock-llm:9000/v1
   - name: mock-llm
     git:
-      repo_clone_url: https://github.com/OWNER/batch-inference-engine.git
+      repo_clone_url: https://github.com/akhrot/batch-inference-engine.git
       branch: main
     source_dir: project
     environment_slug: python

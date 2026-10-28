@@ -28,7 +28,7 @@ flowchart LR
 ## Steps once the repo is public on GitHub
 
 ```bash
-sed -i "s#github.com/OWNER/#github.com/<gh-user>/#" .do/app.yaml && git commit -am "Point app spec at repo" && git push
+sed -i "s#github.com/akhrot/#github.com/<gh-user>/#" .do/app.yaml && git commit -am "Point app spec at repo" && git push
 doctl apps create --spec .do/app.yaml --project-id a7442609-637f-48a0-9523-3dbd9dc991dd --wait
 doctl apps list --format ID,Spec.Name,DefaultIngress
 curl -s https://<default-ingress>/healthz
